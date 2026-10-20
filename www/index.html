@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CAT GO – Prototipe</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap">
+<style>
+:root{color-scheme:dark;--bg:#0f2a30;--panel:#17404a;--ink:#eaf7f3;--mute:#8fb8b5;--can:#d4dde0;--hot:#f58b34;--ok:#7ee0a8;--bad:#ff7a6b;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:"Baloo 2",system-ui,sans-serif;overflow:hidden;touch-action:none}
+#app{height:100%;display:flex;flex-direction:column;max-width:520px;margin:0 auto;position:relative}
+.screen{display:none;flex:1;flex-direction:column;padding:16px;min-height:0}
+.screen.on{display:flex}
+h1{font-size:56px;line-height:.9;margin:8px 0 4px;font-weight:800;letter-spacing:-1px}
+h1 span{color:var(--hot)}
+h2{margin:0 0 8px;font-size:26px}
+p.sub{margin:0 0 16px;color:var(--mute)}
+.menu{display:grid;gap:10px;margin-top:auto}
+button{font:inherit;color:var(--ink);background:var(--panel);border:0;border-radius:14px;padding:14px 16px;font-weight:700;font-size:18px;text-align:left;cursor:pointer}
+button:focus-visible{outline:3px solid var(--hot);outline-offset:2px}
+button.main{background:var(--hot);color:#2a1300;font-size:22px}
+button:disabled{opacity:.45;cursor:not-allowed}
+.stat{display:flex;justify-content:space-between;background:var(--panel);border-radius:14px;padding:12px 16px;margin-bottom:8px}
+#stage{flex:1;position:relative;min-height:0;border-radius:18px;overflow:hidden;background:#1d5560}
+canvas{display:block;width:100%;height:100%}
+.hud{position:absolute;left:12px;right:12px;top:12px;pointer-events:none}
+.bar{height:12px;border-radius:8px;background:rgba(0,0,0,.35);overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;width:0;background:var(--ok)}
+.bar.t i{background:var(--hot)}
+#msg{position:absolute;left:0;right:0;bottom:12px;text-align:center;font-weight:700;pointer-events:none;padding:0 12px;text-shadow:0 1px 4px #000}
+.row{display:flex;gap:10px;margin-top:10px}
+.row button{flex:1;text-align:center}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;overflow:auto;touch-action:pan-y;padding-bottom:8px}
+.card{background:var(--panel);border-radius:14px;padding:10px;border-top:6px solid var(--c)}
+.card b{display:block;font-size:18px}
+.card small{color:var(--mute);display:block}
+.dot{width:46px;height:46px;border-radius:50%;margin-bottom:6px}
+.back{margin-bottom:12px;width:auto;align-self:flex-start;padding:8px 14px;font-size:16px}
+#over{position:absolute;inset:0;background:rgba(10,30,34,.88);display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;gap:6px}
+#over.on{display:flex}
+#over button{text-align:center;margin-top:12px;min-width:200px}
+input[type=range]{width:100%;accent-color:var(--hot)}
+.sb{display:grid;grid-template-columns:76px 1fr 28px;align-items:center;gap:6px;font-size:13px;margin-top:3px}
+.sb u{display:block;height:8px;border-radius:6px;background:rgba(0,0,0,.35);text-decoration:none;overflow:hidden}
+.sb u i{display:block;height:100%;background:var(--ok)}
+.sb b{text-align:right;font-size:13px}
+.card{cursor:pointer}
+#modal{position:absolute;inset:0;background:rgba(10,30,34,.92);display:none;align-items:center;justify-content:center;padding:16px;z-index:5}
+#modal.on{display:flex}
+.box{background:var(--panel);border-radius:18px;padding:16px;width:100%;max-height:100%;overflow:auto}
+.box input,.box select{width:100%;font:inherit;padding:10px;border-radius:10px;border:0;background:var(--bg);color:var(--ink);margin:4px 0 10px}
+#up{margin-bottom:10px;text-align:center}
+h1.logo{font-size:30px;line-height:1;margin:0 0 8px;letter-spacing:0}
+#show{flex:1;min-height:0;position:relative;border-radius:18px;background:radial-gradient(circle at 50% 70%,#2d7480,#1a4a54);overflow:hidden;margin-bottom:10px}
+#show-empty{position:absolute;inset:0;display:none;align-items:center;justify-content:center;text-align:center;padding:24px;color:var(--mute)}
+#show-name{position:absolute;left:14px;bottom:12px;font-weight:800;font-size:20px;text-shadow:0 1px 4px #000;pointer-events:none}
+#pick{position:absolute;right:10px;top:10px;font-size:14px;padding:8px 12px;display:none}
+#pickm{position:absolute;inset:0;background:rgba(10,30,34,.92);display:none;align-items:center;justify-content:center;padding:16px;z-index:5}
+#pickm.on{display:flex}
+#pk-grid{max-height:50vh;margin-bottom:10px}
+.menu{display:flex;gap:10px;overflow-x:auto;overflow-y:hidden;touch-action:pan-x;scroll-snap-type:x mandatory;margin-top:0;padding-bottom:6px}
+.menu button{flex:0 0 132px;height:92px;scroll-snap-align:start;display:flex;align-items:flex-end}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.top h1.logo{margin:0}
+#avatar,#pav{border-radius:50%;background:var(--panel) center/cover no-repeat;display:flex;align-items:center;justify-content:center;padding:0;font-size:26px;flex:none;border:3px solid var(--hot)}
+#avatar{width:50px;height:50px}
+#pav{width:120px;height:120px;font-size:56px;margin:0 auto 12px}
+#prem{margin-top:8px;background:transparent;color:var(--mute);text-align:center;font-size:15px}
+#flt input,#flt select{font:inherit;font-size:14px;padding:8px;border-radius:10px;border:0;background:var(--panel);color:var(--ink);width:100%}
+#flt input{margin-bottom:6px}
+.fsel{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
+#a-grid{flex:1;min-height:0;align-content:start}
+#s-menu{position:relative;overflow:hidden;background:radial-gradient(circle at 85% 0,#1f5f6b 0,transparent 55%),radial-gradient(circle at 0 100%,rgba(245,139,52,.16) 0,transparent 50%)}
+#s-menu::before{content:"🐾";position:absolute;font-size:160px;left:-26px;top:34%;opacity:.07;transform:rotate(-24deg);pointer-events:none}
+h1.logo{font-size:38px;font-weight:800;letter-spacing:-.5px;text-shadow:0 3px 0 rgba(0,0,0,.3)}
+h1.logo span{background:linear-gradient(90deg,var(--hot),#ffd166);-webkit-background-clip:text;background-clip:text;color:transparent}
+#show::after{content:"";position:absolute;left:22%;right:22%;bottom:7%;height:30px;border-radius:50%;background:radial-gradient(rgba(0,0,0,.4),transparent 70%);pointer-events:none}
+#show-name{background:rgba(10,30,34,.6);padding:4px 12px;border-radius:12px;bottom:14px;z-index:1}
+.canbar{align-items:center}
+.pips{display:flex;gap:4px;flex:1;margin:0 12px}
+.pips u{flex:1;height:10px;border-radius:5px;background:rgba(0,0,0,.35);text-decoration:none}
+.pips u.on{background:var(--hot)}
+.menu .tile{flex-direction:column;justify-content:space-between;align-items:flex-start;height:104px;background:linear-gradient(160deg,var(--a),var(--b));color:#fff;border-radius:18px;box-shadow:0 6px 0 rgba(0,0,0,.3);transition:transform .1s,box-shadow .1s;margin-bottom:6px}
+.menu .tile:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.3)}
+.menu .tile i{font-style:normal;font-size:30px;line-height:1}
+.menu .tile.main{flex-basis:176px;color:#2a1300}
+.menu .tile:disabled{background:#2c4a50;box-shadow:none;opacity:.55}
+#cam{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none}
+#cv{position:absolute;inset:0}
+#misi-list{overflow:auto;touch-action:pan-y;flex:1;min-height:0}
+.mcard{background:var(--panel);border-radius:14px;padding:12px;margin-bottom:10px;border-left:6px solid var(--lc,#7ee0a8)}
+.mcard.lv1{--lc:#5aa9ff}.mcard.lv2{--lc:#ffb02e}
+.mt small{display:block;color:var(--mute)}
+.mf{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.mf button{padding:6px 12px;font-size:14px}
+#misi-bonus{margin-top:8px}
+#misi-bonus button{width:100%;text-align:center}
+#rec{display:none;margin-top:10px}
+#rec.on{display:flex;flex-direction:column;align-items:center;gap:6px}
+</style>
+</head>
+<body>
+<div id="app">
+ <section class="screen on" id="s-menu">
+  <div class="top"><h1 class="logo">CAT <span>GO</span></h1><button id="avatar" data-go="profil" aria-label="Profil pemain"></button></div>
+  <div id="show"><canvas id="mcv"></canvas><div id="show-empty">Belum ada kucing di album. Tangkap satu dulu lewat Berburu Kucing.</div><div id="show-name"></div><button id="pick">Ganti kucing</button></div>
+  <div id="pickm"><div class="box"><h2>Pilih kucing utama</h2><div class="grid" id="pk-grid"></div><button id="pk-x">Tutup</button></div></div>
+  <div class="stat canbar"><span>🥫 Kaleng hari ini</span><div class="pips" id="pips"></div><b id="m-stok">10/10</b></div>
+  <div class="menu">
+   <button class="main tile" style="--a:#ffc15e;--b:#f58b34" data-go="hunt"><i>🐾</i>Berburu Kucing</button>
+   <button class="tile" style="--a:#7b97ff;--b:#4a5fd6" data-go="album"><i>📖</i>Album Koleksi</button>
+   
+   <button class="tile" style="--a:#ff8fb1;--b:#e0507a" data-go="misi"><i>🎯</i>Misi Harian <span id="mn"></span></button>
+   <button class="tile" style="--a:#56c2b3;--b:#2c8a80" data-go="inv"><i>🥫</i>Inventaris</button>
+   <button class="tile" style="--a:#97a3b5;--b:#5d6878" data-go="set"><i>⚙️</i>Pengaturan</button>
+   <button class="tile" disabled><i>🛍️</i>Toko · segera</button>
+  </div>
+ </section>
+
+ <section class="screen" id="s-hunt">
+  <button class="back" data-go="menu">← Menu</button>
+  <div id="stage"><video id="cam" autoplay playsinline muted></video><canvas id="cv"></canvas>
+   <div class="hud">
+    <div>Menghadap kamera <b id="h-face">0.0</b>/2.0 dtk</div>
+    <div class="bar"><i id="b-face"></i></div>
+    <div style="margin-top:6px">Sisa waktu <b id="h-time">10.0</b> dtk</div>
+    <div class="bar t"><i id="b-time" style="width:100%"></i></div>
+   </div>
+   <div id="msg">Tes suara dulu, lalu lempar kaleng.</div>
+   <div id="over"><h2 id="o-t"></h2><div id="o-d"></div><div id="rec"><button id="r-go">🎙️ Rekam suara kucing (5 dtk)</button><button id="r-play" style="display:none">▶ Dengar</button><button id="r-skip">Belum ada kucing di dekatku</button><div id="r-st" class="sub"></div></div><button class="main" id="o-b">Lanjut</button></div>
+  </div>
+  <div class="row">
+   <button id="b-test">Tes suara kaleng</button>
+   <button class="main" id="b-throw" disabled>Lempar kaleng (<span id="h-stok">10</span>)</button>
+  </div>
+ </section>
+
+ <section class="screen" id="s-album">
+  <button class="back" data-go="menu">← Menu</button>
+  <h2>Album Koleksi</h2>
+  <p class="sub" id="a-cap"></p>
+  <button id="up">Upgrade slot</button>
+  <div id="flt"></div>
+  <div class="grid" id="a-grid"></div>
+  <div id="modal"><div class="box"><h2 id="m-t">Kucing</h2><div id="m-info" class="sub"></div><label for="m-name">Nama</label><input id="m-name" maxlength="16"><label for="m-g">Jenis kelamin</label><select id="m-g"><option>Belum ditentukan</option><option>Jantan</option><option>Betina</option></select><div id="m-st"></div><div class="row"><button id="m-play">▶ Putar suara</button><button id="m-rec">🎙️ Rekam suara</button></div><div id="m-rs" class="sub"></div><div class="row"><button id="m-x">Tutup</button><button class="main" id="m-ok">Simpan</button></div></div></div>
+ </section>
+
+ <section class="screen" id="s-profil">
+  <button class="back" data-go="menu">← Menu</button>
+  <h2>Profil Pemain</h2>
+  <div id="pav"></div>
+  <input id="pf" type="file" accept="image/*" hidden>
+  <button id="pchg" style="text-align:center;margin-bottom:12px">Ganti foto profil dari galeri</button>
+  <div class="stat"><span>Cat Points</span><b id="p-pts">0</b></div>
+  <div class="stat"><span>Cat Coins</span><b id="p-coin">0</b></div>
+  <div class="stat"><span>Kucing terkumpul</span><b id="p-cats">0</b></div>
+  <div class="stat"><span>Tier tertinggi</span><b id="p-best">–</b></div>
+  <button id="prem">Hapus foto profil</button>
+ </section>
+
+ <section class="screen" id="s-inv">
+  <button class="back" data-go="menu">← Menu</button>
+  <h2>Inventaris</h2>
+  <div class="stat"><span>Ikan kaleng</span><b id="i-stok">10</b></div>
+  <p class="sub">Stok kembali ke 10 setiap pukul 00.00 WIB. Sisa kaleng tidak dibawa ke hari berikutnya.</p>
+ </section>
+
+ <section class="screen" id="s-misi">
+  <button class="back" data-go="menu">← Menu</button>
+  <h2>Misi Harian</h2>
+  <p class="sub">3 misi acak, ganti setiap pukul 00.00 WIB.</p>
+  <div id="misi-list"></div>
+  <div id="misi-bonus" class="sub"></div>
+ </section>
+
+ <section class="screen" id="s-set">
+  <button class="back" data-go="menu">← Menu</button>
+  <h2>Pengaturan</h2>
+  <label for="vol">Volume suara kaleng</label>
+  <input id="vol" type="range" min="0" max="100" value="80">
+  <p class="sub">Efek suara ini dari HP, bukan untuk kucing sungguhan.</p>
+  <button id="reset">Hapus semua data prototipe</button>
+ </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const TIERS=[["Common",55,10],["Uncommon",25,20],["Rare",12,35],["Epic",5,60],["Legendary",2.5,100],["Mythical",.5,200]];
+const PATTERNS={Common:["Polos","Belang"],Uncommon:["Bicolor"],Rare:["Colorpoint","Marmer"],Epic:["Calico"],Legendary:["Tortoiseshell"],Mythical:["Galaksi"]};
+const COLORS=[["Oranye","#f0913a"],["Abu-abu","#9aa5ad"],["Hitam","#2c2c33"],["Putih","#f1ede6"],["Cokelat","#8a5a3b"]];
+const NAMES=["Oliver","Mochi","Pudding","Bubu","Kenji","Luna","Tuna","Simba","Nori","Coco"];
+const AGES=["Anak","Remaja","Dewasa"];
+const STATS=["Kekuatan","Kelincahan","Kecepatan","Keramahan","Insting"];
+let S={stok:10,day:"",album:[],pts:0,coins:0,vol:.8,cap:50};
+
+function wibDay(){return new Date(Date.now()+7*3600e3).toISOString().slice(0,10)}
+function load(){try{const r=localStorage.getItem("catgo");if(r)S=Object.assign(S,JSON.parse(r))}catch(e){}
+ if(S.day!==wibDay()){S.day=wibDay();S.stok=10;save()}}
+function save(){try{localStorage.setItem("catgo",JSON.stringify(S))}catch(e){}}
+load();
+
+/* ---------- navigasi ---------- */
+function go(n){document.querySelectorAll(".screen").forEach(e=>e.classList.toggle("on",e.id==="s-"+n));
+ if(n==="hunt")enterHunt();else stopHunt();if(n==="menu")showMenu();else stopMenu();if(["album","profil","inv","set"].includes(n))track("view:"+n);render()}
+document.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>go(b.dataset.go));
+
+function statBars(c){return STATS.map((s,i)=>`<div class="sb"><span>${s}</span><u><i style="width:${c.st[i]}%"></i></u><b>${c.st[i]}</b></div>`).join("")}
+function render(){
+ applyAvatar();
+ if(S.day!==wibDay()){S.day=wibDay();S.stok=10;save()}
+ $("m-stok").textContent=S.stok+"/10";
+ $("pips").innerHTML=Array.from({length:10},(_,i)=>`<u class="${i<S.stok?"on":""}"></u>`).join("");$("h-stok").textContent=S.stok;$("i-stok").textContent=S.stok;
+ $("p-pts").textContent=S.pts;renderMisi();$("p-coin").textContent=S.coins;$("p-cats").textContent=S.album.length;
+ const best=S.album.reduce((m,c)=>Math.max(m,c.tier),-1);$("p-best").textContent=best<0?"–":TIERS[best][0];
+ $("a-cap").textContent=S.album.length+" dari "+S.cap+" slot terpakai"+(S.album.length&&!S.album.some(fOk)?" · tidak ada kucing yang cocok dengan filter":"");
+ const u=NEXT.find(n=>n[0]===S.cap);
+ $("up").textContent=u?"Upgrade ke "+u[1]+" slot ("+u[2].toLocaleString("id-ID")+" koin)":"Kapasitas sudah maksimal";
+ $("up").disabled=!u||S.coins<u[2];
+ $("a-grid").innerHTML=S.album.length?S.album.map((c,i)=>[c,i]).filter(([c])=>fOk(c)).map(([c,i])=>`<div class="card" data-i="${i}" style="--c:${c.hex}"><div class="dot" style="background:${c.hex}"></div><b>${esc(c.name)}${c.snd?" 🔊":""}</b><small>${TIERS[c.tier][0]} · ${c.pattern}</small><small>${c.color}, ${c.age}, ${c.gender}</small><small>📍 ${esc(addrOf(c))}</small><small>🗺️ Ditangkap di ${locOf(c)}</small><small>ID ${c.id}</small><div style="margin-top:6px">${statBars(c)}</div></div>`).join(""):"<p class='sub'>Belum ada kucing. Ayo berburu dulu.</p>";
+ document.querySelectorAll("#a-grid .card").forEach(el=>el.onclick=()=>openCat(+el.dataset.i));
+}
+
+/* ---------- audio ---------- */
+let ac=null;
+function clang(){
+ try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();ac.resume();
+  const t0=ac.currentTime,out=ac.createGain();out.gain.value=S.vol*.5;
+  const ws=ac.createWaveShaper(),cv=new Float32Array(512);for(let i=0;i<512;i++)cv[i]=Math.tanh((i/256-1)*3);ws.curve=cv;out.connect(ws);ws.connect(ac.destination);
+  const nb=ac.createBuffer(1,Math.floor(ac.sampleRate*.2),ac.sampleRate),d=nb.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+  const grain=(t,amp,len,f)=>{const n=ac.createBufferSource();n.buffer=nb;const hp=ac.createBiquadFilter();hp.type="highpass";hp.frequency.value=f;const g=ac.createGain();g.gain.setValueAtTime(amp,t);g.gain.exponentialRampToValueAtTime(.001,t+len);n.connect(hp);hp.connect(g);g.connect(out);n.start(t);n.stop(t+len+.02)};
+  const ring=(t,amp,pitch)=>[740,1190,1780,2630,3790,5300].forEach((f,i)=>{[0,1].forEach(j=>{const o=ac.createOscillator(),e=ac.createGain();o.type=i%2?"square":"sawtooth";
+   o.frequency.setValueAtTime(f*pitch*1.08,t);o.frequency.exponentialRampToValueAtTime(f*pitch*(1+j*.013),t+.04);
+   e.gain.setValueAtTime(amp*.22/(1+i*.25),t);e.gain.exponentialRampToValueAtTime(.001,t+.5-i*.05);o.connect(e);e.connect(out);o.start(t);o.stop(t+.55)})});
+  for(let i=0;i<9;i++)grain(t0+i*.014+Math.random()*.006,.9*(.5+Math.random()*.5),.03+Math.random()*.03,1200+Math.random()*2500);
+  ring(t0+.11,1,1);
+  [[.34,.55,1.12],[.5,.35,.92]].forEach(h=>{for(let i=0;i<4;i++)grain(t0+h[0]+i*.012,h[1]*.8,.04,2000+Math.random()*2000);ring(t0+h[0]+.03,h[1],h[2])});
+  for(let i=0;i<22;i++)grain(t0+.65+i*.045+Math.random()*.02,.25*(1-i/24),.025,3000+Math.random()*3000);
+  return true}catch(e){return false}}
+function clangV2(){
+ try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();ac.resume();
+  const t0=ac.currentTime,out=ac.createGain();out.gain.value=S.vol*.6;out.connect(ac.destination);
+  const nb=ac.createBuffer(1,Math.floor(ac.sampleRate*.3),ac.sampleRate),d=nb.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+  const hit=(t,amp,pitch)=>{
+   const n=ac.createBufferSource();n.buffer=nb;const bp=ac.createBiquadFilter();bp.type="bandpass";bp.frequency.value=4200*pitch;bp.Q.value=.8;
+   const g=ac.createGain();g.gain.setValueAtTime(amp,t);g.gain.exponentialRampToValueAtTime(.001,t+.09);n.connect(bp);bp.connect(g);g.connect(out);n.start(t);n.stop(t+.12);
+   [820,1370,2210,3150,4400].forEach((f,i)=>{const o=ac.createOscillator(),e=ac.createGain();o.type="sine";o.frequency.value=f*pitch*(1+Math.random()*.02);
+    e.gain.setValueAtTime(amp*.35/(1+i*.4),t);e.gain.exponentialRampToValueAtTime(.001,t+.35-i*.04);o.connect(e);e.connect(out);o.start(t);o.stop(t+.4)})};
+  [[0,1,1],[.19,.7,1.07],[.32,.5,.95],[.41,.35,1.1],[.48,.25,1],[.53,.18,1.05]].forEach(h=>hit(t0+h[0],h[1],h[2]));
+  for(let i=0;i<14;i++)hit(t0+.58+i*.05+Math.random()*.02,.12*(1-i/16),1+Math.random()*.2);
+  return true}catch(e){return false}}
+function clangOld(){
+ try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();ac.resume();
+  const g=ac.createGain();g.gain.value=S.vol;g.connect(ac.destination);
+  [1180,1760,2650,3300].forEach((f,i)=>{const o=ac.createOscillator(),e=ac.createGain();o.type=i%2?"square":"triangle";o.frequency.value=f;
+   e.gain.setValueAtTime(.35,ac.currentTime);e.gain.exponentialRampToValueAtTime(.001,ac.currentTime+.5+i*.08);o.connect(e);e.connect(g);o.start();o.stop(ac.currentTime+.8)});
+  return true}catch(e){return false}}
+$("vol").value=S.vol*100;$("vol").oninput=e=>{S.vol=e.target.value/100;save()};
+$("reset").onclick=()=>{try{localStorage.removeItem("catgo")}catch(e){}S={stok:10,day:wibDay(),album:[],pts:0,coins:0,vol:.8,cap:50};render()};
+
+/* ---------- 3D ---------- */
+let R,scene,cam,cat,head,tail,raf=0,H={on:false};
+function buildCat(hex){
+ const g=new THREE.Group(),m=new THREE.MeshStandardMaterial({color:hex,roughness:.8});
+ const body=new THREE.Mesh(new THREE.
